@@ -62,8 +62,10 @@ def main():
 
     curve = get_curve(name)
 
+    print(curve)
+
     signingKey = ecdsa.SigningKey.generate(curve=curve)
-    print("signing key: " + signingKey.to_string().hex())
+    print("\nsigning key: " + signingKey.to_string().hex())
     print("verify key: " + signingKey.verifying_key.to_string().hex())
 
 if __name__ == '__main__':

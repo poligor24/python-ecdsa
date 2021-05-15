@@ -75,6 +75,8 @@ def main():
     verifyingKey = ecdsa.VerifyingKey.from_string(bytearray.fromhex(key), curve=curve)
     verifyingKey.precompute()
 
+    print('public key: ', verifyingKey.pubkey.point)
+
     fileName = input('input file name for signing: ')
 
     hash = sha256sum(fileName)

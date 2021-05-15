@@ -176,12 +176,31 @@ class Public_key(object):
             return False
         c = numbertheory.inverse_mod(s, n)
         u1 = (hash * c) % n
+
+        print("""
+            u1 = (hash * s^-1) mod n = ({h} * {c}) mod n 
+            \t={u1}
+        """.format(h=hash,c=c,u1=u1))
+
         u2 = (r * c) % n
+
+        print("""
+                    u2 = (r * s^-1) mod n = ({r} * {c}) mod n 
+                    \t={u2}
+            """.format(r=r, c=c, u2=u2))
+
         if hasattr(G, "mul_add"):
             xy = G.mul_add(u1, self.point, u2)
         else:
             xy = u1 * G + u2 * self.point
+        print("""
+            u1*G + u2*public_key = {u1}*{G} + {u2}*{pk}
+            \t= {xy}
+        """.format(u1=u1,u2=u2,G=G,pk=self.point,xy=xy))
+
         v = xy.x() % n
+
+        print('v == r <=> {v} == {r}'.format(v=v,r=r))
         return v == r
 
 
@@ -227,6 +246,7 @@ class Private_key(object):
         G = self.public_key.generator
         n = G.order()
         k = random_k % n
+        print('генеруємо випадкове число k: ', k)
         # Fix the bit-length of the random nonce,
         # so that it doesn't leak via timing.
         # This does not change that ks = k mod n
@@ -236,13 +256,30 @@ class Private_key(object):
             p1 = kt * G
         else:
             p1 = ks * G
+        print('рахуємо k*G = {k}*{G} \n\t= {kG}'.format(k=k, G=G, kG=p1))
         r = p1.x() % n
+        print('рахуємо r = G_x mod p = ', r)
         if r == 0:
             raise RSZeroError("amazingly unlucky random number r")
         s = (
             numbertheory.inverse_mod(k, n)
             * (hash + (self.secret_multiplier * r) % n)
         ) % n
+
+        print("""
+        рахуемо s = k^-1 * (hash + private_key * r) mod p 
+            = {k}^-1 * (hash + {private_key} * {r}) mod {p}
+            = {k_inv} * {sum} mod {p} 
+            = {s}
+        """.format(
+            k=k,
+            private_key=self.secret_multiplier,
+            r=r,
+            p=n,
+            k_inv=numbertheory.inverse_mod(k, n),
+            s=s,
+            sum=hash + (self.secret_multiplier * r)
+        ))
         if s == 0:
             raise RSZeroError("amazingly unlucky random number s")
         return Signature(r, s)

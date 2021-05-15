@@ -172,6 +172,8 @@ class VerifyingKey(object):
     :ivar pubkey: the actual public key
     :vartype pubkey: ecdsa.ecdsa.Public_key
     """
+    def __str__(self):
+        return self.pubkey.point
 
     def __init__(self, _error__please_use_generate=None):
         """Unsupported, please use one of the classmethods to initialise."""
@@ -826,6 +828,7 @@ class VerifyingKey(object):
 
         try:
             r, s = sigdecode(signature, self.pubkey.order)
+            print('(r, s) = ({r}, {s})'.format(r=r,s=s))
         except (der.UnexpectedDER, MalformedSignature) as e:
             raise BadSignatureError("Malformed formatting of signature", e)
         sig = ecdsa.Signature(r, s)
@@ -847,6 +850,11 @@ class SigningKey(object):
         associated with this private key
     :ivar ecdsa.ecdsa.Private_key privkey: the actual private key
     """
+
+    def __str__(self):
+        return """
+            private key: {},
+        """.format(self.privkey.secret_multiplier)
 
     def __init__(self, _error__please_use_generate=None):
         """Unsupported, please use one of the classmethods to initialise."""
@@ -893,6 +901,7 @@ class SigningKey(object):
         :rtype: SigningKey
         """
         secexp = randrange(curve.order, entropy)
+        print('генеруємо випадкове число k (private key): ', secexp)
         return cls.from_secret_exponent(secexp, curve, hashfunc)
 
     @classmethod
@@ -931,6 +940,7 @@ class SigningKey(object):
                 "between 1 and {0}".format(n)
             )
         pubkey_point = curve.generator * secexp
+        print("обчислюємо k*G (public key): {k}*{G} \n\t= {pk}".format(k=secexp,G=curve.generator,pk=pubkey_point))
         if hasattr(pubkey_point, "scale"):
             pubkey_point = pubkey_point.scale()
         self.verifying_key = VerifyingKey.from_public_point(
@@ -1506,6 +1516,7 @@ class SigningKey(object):
             digest, self.curve, allow_truncate,
         )
         r, s = self.sign_number(number, entropy, k)
+        print('signature = (r,s) = ({r}, {s})'.format(r=r,s=s))
         return sigencode(r, s, self.privkey.order)
 
     def sign_number(self, number, entropy=None, k=None):

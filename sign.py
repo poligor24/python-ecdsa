@@ -71,12 +71,18 @@ def main():
     curveName = input('select curve: ')
     curve = get_curve(curveName)
 
+    print(curve)
+
     key = input('input signing key: ')
     signingKey = ecdsa.SigningKey.from_string(bytearray.fromhex(key), curve=curve)
+
+    print(signingKey)
 
     fileName = input('input file name for signing: ')
 
     hash = sha256sum(fileName)
+
+    print('hash({}) = '.format(fileName), hash)
 
     signature = signingKey.sign(bytearray.fromhex(hash))
 

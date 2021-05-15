@@ -52,6 +52,18 @@ class Curve:
     def __repr__(self):
         return self.name
 
+    def __str__(self):
+        return """
+            Назва кривої: {name}
+            Крива: {curve}
+            Точка G:{G}
+            
+        """.format(
+            name=self.name,
+            curve=self.curve,
+            G=self.generator,
+        )
+
 
 # the SEC curves
 SECP112r1 = Curve(

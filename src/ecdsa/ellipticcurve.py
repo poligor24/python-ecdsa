@@ -147,6 +147,8 @@ class PointJacobi(object):
     x = X / Z²
     y = Y / Z³
     """
+    def __str__(self):
+        return """({x}, {y})""".format(x=self.x(), y=self.y())
 
     def __init__(self, curve, x, y, z, order=None, generator=False):
         """
